@@ -45,7 +45,6 @@ def submitWork(nonce, result, miner):
         else:
             return True
     except:
-        raise
         return False
 
 app = flask.Flask(__name__)
