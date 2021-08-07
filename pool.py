@@ -20,6 +20,8 @@ config = json.load(_configfile)
 _configfile.close()
 config["address"] = eth_account.Account.privateKeyToAccount(config["privateKey"]).address
 config["privateKey"] = bytes.fromhex(config["privateKey"])
+print(f"Server address : {config['address']}")
+
 
 def submitWork(nonce, result, miner):
     global polygon, token, config
@@ -47,3 +49,6 @@ def submit(nonce, result):
         return "Good"
     else:
         return "Bad"
+        
+        
+app.run(port=config["port"])
