@@ -1,4 +1,4 @@
-from import web3 import Web3
+from web3 import Web3
 from flask_cors import cross_origin
 import flask, eth_account
 global polygon, token, config
