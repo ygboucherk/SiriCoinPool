@@ -1,6 +1,6 @@
 from web3 import Web3
 from flask_cors import cross_origin
-import flask, eth_account, json
+import flask, eth_account, json, requests
 global polygon, token, config
 
 
@@ -22,11 +22,19 @@ config["address"] = eth_account.Account.privateKeyToAccount(config["privateKey"]
 config["privateKey"] = bytes.fromhex(config["privateKey"])
 print(f"Server address : {config['address']}")
 
+def gasPrice():
+    global config
+    if (config["autoGasPrice"]):
+        return int(min(requests.get("https://gasstation-mainnet.matic.network/").json()["fast"], config["maxGasPrice"])*(10**9))
+    else:
+        return int(config["gasPrice"]*(10**9))
 
 def submitWork(nonce, result, miner):
     global polygon, token, config
     try:
-        tx = token.functions._mint(int(nonce), result, Web3.toChecksumAddress(miner), int(config["poolFee"]), config["address"]).buildTransaction({'nonce': polygon.eth.get_transaction_count(config["address"]),'chainId': 137, 'gasPrice': config["gasPrice"], 'from':config["address"]})
+        _gas = gasPrice()
+        print(f"miner : {miner}\nresult : {result}\nnonce : {nonce}\ngas price : {_gas/10**9} gwei")
+        tx = token.functions._mint(int(nonce), result, Web3.toChecksumAddress(miner), int(config["poolFee"]), config["address"]).buildTransaction({'nonce': polygon.eth.get_transaction_count(config["address"]),'chainId': 137, 'gasPrice': _gas, 'from':config["address"]})
         tx = polygon.eth.account.sign_transaction(tx, config["privateKey"])
         txid = polygon.toHex(polygon.keccak(tx.rawTransaction))
         print("txid :",txid)
