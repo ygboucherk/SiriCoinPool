@@ -1,4 +1,5 @@
 from import web3 import Web3
+from flask_cors import cross_origin
 import flask, eth_account
 global polygon, token, config
 
@@ -39,6 +40,7 @@ def submitWork(nonce, result, miner):
 app = flask.Flask(__name__)
 
 @app.route("/submit/<nonce>/<result>/<miner>")
+@cross_origin()
 def submit(nonce, result):
     feedback = submitWork(nonce, result, miner)
     if feedback:
