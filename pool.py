@@ -24,7 +24,7 @@ config["privateKey"] = bytes.fromhex(config["privateKey"])
 def submitWork(nonce, result, miner):
     global polygon, token, config
     try:
-        tx = token.functions._mint(nonce, result, miner, config["poolFee"], config["address"]).buildTransaction({'nonce': polygon.eth.get_transaction_count(config["address"]),'chainId': 137, 'gasPrice': (10**9)*5, 'from':config["address"]})
+        tx = token.functions._mint(nonce, result, miner, config["poolFee"], config["address"]).buildTransaction({'nonce': polygon.eth.get_transaction_count(config["address"]),'chainId': 137, 'gasPrice': config["gasPrice"], 'from':config["address"]})
         tx = polygon.eth.account.sign_transaction(tx, config["privateKey"])
         txid = polygon.toHex(polygon.keccak(tx.rawTransaction))
         print("txid :",txid)

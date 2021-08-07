@@ -1,4 +1,5 @@
 {
 	"privateKey":"No credentials there lmao",
-	"poolFee": 10
+	"poolFee":10,
+	"gasPrice":2000000000
 }
