@@ -33,8 +33,14 @@ async function mining() {
 }
 
 async function startMining(minerAddress) {
-	myAddress = web3.utils.toChecksumAddress(minerAddress);
-	while(true) {
+	myAddress = _web3.utils.toChecksumAddress(minerAddress);
+	minerActive = true
+	while(minerActive) {
 		await mining();
 	}
+}
+
+async function stopMining() {
+	minerActive = false;
+}
 }
