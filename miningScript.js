@@ -43,4 +43,3 @@ async function startMining(minerAddress) {
 async function stopMining() {
 	minerActive = false;
 }
-}
