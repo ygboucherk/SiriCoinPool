@@ -29,12 +29,14 @@ def gasPrice():
     else:
         return int(config["gasPrice"]*(10**9))
 
-def submitWork(nonce, result, miner):
+def submitWork(nonce, result, miner, feeHolder):
     global polygon, token, config
     try:
         _gas = gasPrice()
         print(f"miner : {miner}\nresult : {result}\nnonce : {nonce}\ngas price : {_gas/10**9} gwei")
-        tx = token.functions._mint(int(nonce), result, Web3.toChecksumAddress(miner), int(config["poolFee"]), config["address"]).buildTransaction({'nonce': polygon.eth.get_transaction_count(config["address"]),'chainId': 137, 'gasPrice': _gas, 'from':config["address"]})
+        if (config["address"] != feeHolder):
+            print(f"referrer : {feeHolder}")
+        tx = token.functions._mint(int(nonce), result, Web3.toChecksumAddress(miner), int(config["poolFee"]), feeHolder).buildTransaction({'nonce': polygon.eth.get_transaction_count(config["address"]),'chainId': 137, 'gasPrice': _gas, 'from':config["address"]})
         tx = polygon.eth.account.sign_transaction(tx, config["privateKey"])
         txid = polygon.toHex(polygon.keccak(tx.rawTransaction))
         print("txid :",txid)
@@ -52,11 +54,19 @@ app = flask.Flask(__name__)
 @app.route("/submit/<nonce>/<result>/<miner>")
 @cross_origin()
 def submit(nonce, result, miner):
-    feedback = submitWork(nonce, result, miner)
+    feedback = submitWork(nonce, result, miner, config["address"])
     if feedback:
         return "Good"
     else:
         return "Bad"
-        
+
+@app.route("/submit/<nonce>/<result>/<miner>/<referrer>")
+@cross_origin()
+def submitWithRef(nonce, result, miner, referrer):
+    feedback = submitWork(nonce, result, miner, referrer)
+    if feedback:
+        return "Good"
+    else:
+        return "Bad"
         
 app.run(port=config["port"])
