@@ -46,7 +46,8 @@ def submitWork(nonce, result, miner, feeHolder):
             return False
         else:
             return True
-    except:
+    except Exception as e:
+        print(e);
         return False
 
 app = flask.Flask(__name__)
@@ -69,4 +70,4 @@ def submitWithRef(nonce, result, miner, referrer):
     else:
         return "Bad"
         
-app.run(port=config["port"])
+app.run(host="0.0.0.0", port=config["port"], ssl_context=("/etc/letsencrypt/live/siricoinpool.dynamic-dns.net/fullchain.pem", "/etc/letsencrypt/live/siricoinpool.dynamic-dns.net/privkey.pem"))
