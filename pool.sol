@@ -195,11 +195,11 @@ contract Owned {
 
 contract SiriCoinPPS is Owned {
 	using SafeMath for uint256;
-	uint256 public currentChallenge;
 	uint256 public _MAXIMUM_TARGET;
 	uint256 public _MINIMUM_TARGET;
 	uint256 public miningTarget;
 	SiriCoinInterface public SiriCoin;
+	mapping (bytes32 => bool) resultExists;
 	
 	constructor(SiriCoinInterface _SiriCoin, uint256 _startDiff) {
 		require(_startDiff > 0, "Start diff cannot be zero !");
@@ -235,10 +235,12 @@ contract SiriCoinPPS is Owned {
 		return _reward;
 	}
 	function _mint(uint256 nonce, bytes32 challenge_digest, address _miner, uint256 feeToPool, address pool) public returns (bool) {
-		bytes32 n = keccak256(abi.encodePacked(keccak256(abi.encodePacked(currentChallenge, _miner, nonce))));
+		bytes32 n = keccak256(abi.encodePacked(keccak256(abi.encodePacked(SiriCoin.getChallengeNumber(), _miner, nonce))));
 		require(challenge_digest == n, "Your result dont match");
 		require(n <= bytes32(miningTarget), "Difficulty unmatched");
-		if (n <= bytes32(miningTarget)) {
+		require(!resultExists[n], "Result already sumbitted baby... u look like me at exams");
+		resultExists[n] = true;
+		if (n <= bytes32(SiriCoin.getMiningTarget())) {
 			SiriCoin._mint(nonce, n, _miner, 100, address(this));
 		}
 		uint256 totalReward = getMiningReward();
