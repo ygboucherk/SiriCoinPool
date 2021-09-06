@@ -19,12 +19,16 @@ pool = polygon.eth.contract(address="0xE0De8d9df719c0C119ad2f7Ca7f654aD59F2F2d4"
 try:
     context = tuple(config["ssl"])
 except:
-    context = ("/etc/letsencrypt/live/siricoinpool.dynamic-dns.net/fullchain.pem", "/etc/letsencrypt/live/siricoinpool.dynamic-dns.net/privkey.pem")    
+    context = ("/etc/letsencrypt/live/siricoinpool.dynamic-dns.net/fullchain.pem", "/etc/letsencrypt/live/siricoinpool.dynamic-dns.net/privkey.pem")
 
 _configfile = open(configfile, "r")
 config = json.load(_configfile)
 _configfile.close()
 config["address"] = eth_account.Account.privateKeyToAccount(config["privateKey"]).address
+try:
+    config["feeRecipient"] = Web3.toChecksumAddress(config["feeRecipient"])
+except:
+    config["feeRecipient"] = config["address"]
 config["privateKey"] = bytes.fromhex(config["privateKey"])
 print(f"Server address : {config['address']}")
 
@@ -60,7 +64,7 @@ def submitWork(nonce, result, miner, feeHolder):
     try:
         _gas = gasPrice()
         print(f"miner : {miner}\nresult : {result}\nnonce : {nonce}\ngas price : {_gas/config['gasMultiplier']} gwei")
-        if (config["address"] != feeHolder):
+        if (config["feeRecipient"] != feeHolder):
             print(f"referrer : {feeHolder}")
         tx = pool.functions._mint(int(nonce), result, Web3.toChecksumAddress(miner), int(config["poolFee"]), feeHolder).buildTransaction({'nonce': getNonce(),'chainId': 137, 'gasPrice': _gas, 'from':config["address"]})
         tx = polygon.eth.account.sign_transaction(tx, config["privateKey"])
@@ -86,7 +90,7 @@ app = flask.Flask(__name__)
 @app.route("/submit/<nonce>/<result>/<miner>")
 @cross_origin()
 def submit(nonce, result, miner):
-    feedback = submitWork(nonce, result, miner, config["address"])
+    feedback = submitWork(nonce, result, miner, config["feeRecipient"])
     if feedback:
         return "Good"
     else:
