@@ -16,6 +16,10 @@ _abi = """[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"a
 # token = polygon.eth.contract(address="0x9eb1f7bc4875a09dff51b1fb2f80f6b8e0b4eb81", abi=_abi)
 pool = polygon.eth.contract(address="0xE0De8d9df719c0C119ad2f7Ca7f654aD59F2F2d4", abi=_abi)
 
+try:
+    context = tuple(config["ssl"])
+except:
+    context = ("/etc/letsencrypt/live/siricoinpool.dynamic-dns.net/fullchain.pem", "/etc/letsencrypt/live/siricoinpool.dynamic-dns.net/privkey.pem")    
 
 _configfile = open(configfile, "r")
 config = json.load(_configfile)
@@ -97,4 +101,4 @@ def submitWithRef(nonce, result, miner, referrer):
     else:
         return "Bad"
         
-app.run(host="0.0.0.0", port=config["port"], ssl_context=("/etc/letsencrypt/live/siricoinpool.dynamic-dns.net/fullchain.pem", "/etc/letsencrypt/live/siricoinpool.dynamic-dns.net/privkey.pem"))
+app.run(host="0.0.0.0", port=config["port"], ssl_context=context)

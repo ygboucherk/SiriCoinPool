@@ -4,5 +4,7 @@
 	"gasPrice":10,
 	"maxGasPrice":15,
 	"autoGasPrice":true,
-	"port":5001
+	"port":5001,
+	"gasMultiplier":1000000000,
+	"ssl": ["cert.pem","privkey.pem"]
 }
